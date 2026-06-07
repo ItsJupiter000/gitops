@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: stock-pulse
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-username/stock-pulse.git  # <-- UPDATE THIS
+    targetRevision: main
+    path: helm/stock-pulse
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
