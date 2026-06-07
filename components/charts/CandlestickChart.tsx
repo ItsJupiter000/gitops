@@ -80,7 +80,7 @@ export default function CandlestickChart({ symbol }: { symbol: string }) {
       if (!data.length) throw new Error('No chart data returned');
       // lightweight-charts requires time to be sorted ascending
       const sorted = [...data].sort((a, b) => (a.time as number) - (b.time as number));
-      seriesRef.current.setData(sorted as Parameters<typeof seriesRef.current.setData>[0]);
+      seriesRef.current.setData(sorted as unknown as Parameters<typeof seriesRef.current.setData>[0]);
       chartRef.current?.timeScale().fitContent();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Chart load failed';

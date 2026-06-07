@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       summary: undefined,
       source: item.publisher,
       url: item.link,
-      publishedAt: new Date((item.providerPublishTime as number) * 1000).toISOString(),
+      publishedAt: new Date(item.providerPublishTime as any).toISOString(),
       image: (item as { thumbnail?: { resolutions?: { url: string }[] } }).thumbnail?.resolutions?.[0]?.url,
     }));
 
