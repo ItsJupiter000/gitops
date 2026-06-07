@@ -9,6 +9,9 @@ import ScreenerPanel from "@/components/screener/ScreenerPanel";
 import AlertsPanel from "@/components/alerts/AlertsPanel";
 import SettingsPanel from "@/components/settings/SettingsPanel";
 
+
+
+
 function Panels() {
   const { activePanel } = useAppStore();
 
