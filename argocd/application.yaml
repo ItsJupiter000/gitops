@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-username/stock-pulse.git  # <-- UPDATE THIS
+    repoURL: https://github.com/ItsJupiter000/gitops.git # <-- UPDATE THIS
     targetRevision: main
     path: helm/stock-pulse
     helm:

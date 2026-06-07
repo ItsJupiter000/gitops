@@ -7,7 +7,7 @@ on:
 
 env:
   # TODO: Change this to your Docker Hub username/repository
-  DOCKER_IMAGE: your-dockerhub-username/stock-pulse
+  DOCKER_IMAGE: jupiter000/stock-pulse
   HELM_CHART_PATH: helm/stock-pulse
 
 jobs:
