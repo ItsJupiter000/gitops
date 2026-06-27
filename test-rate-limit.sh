@@ -1,26 +1,59 @@
 #!/bin/bash
 
-# Find the Minikube IP
+# ===============================
+# 🚀 StockPulse Rate Limit Tester
+# ===============================
+
 MINIKUBE_IP=$(minikube ip)
+HOST="stock-pulse.local"
 
-echo "🚀 Starting Load Test on $MINIKUBE_IP (stock-pulse.local)..."
-echo "Sending 10 requests rapidly. You should see '200 OK' for the first two, and '503 Service Temporarily Unavailable' for the rest!"
-echo "------------------------------------------------------"
+TOTAL_REQUESTS=100
+DELAY_BETWEEN_REQUESTS=0   # change to 3 for real RPM simulation
 
-# Loop 10 times to send rapid requests
-for i in $(seq 1 10)
+# Counters
+SUCCESS=0
+BLOCKED=0
+OTHER=0
+
+echo "======================================================"
+echo "🚀 STOCK-PULSE LOAD TEST STARTED"
+echo "🌐 Target: http://$MINIKUBE_IP (Host: $HOST)"
+echo "📊 Total Requests: $TOTAL_REQUESTS"
+echo "⏱️ Delay Between Requests: ${DELAY_BETWEEN_REQUESTS}s"
+echo "======================================================"
+
+for i in $(seq 1 $TOTAL_REQUESTS)
 do
-  # Use curl, resolve stock-pulse.local to the minikube IP, and print only the HTTP status code
-  STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: stock-pulse.local" http://$MINIKUBE_IP/)
-  
-  if [ "$STATUS" = "503" ]; then
-    echo "Request $i: 🔴 BLOCKED by Rate Limiter (HTTP 503)"
-  elif [ "$STATUS" = "200" ]; then
-    echo "Request $i: 🟢 SUCCESS (HTTP 200)"
+  TIMESTAMP=$(date +"%H:%M:%S")
+
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "Host: $HOST" \
+    http://$MINIKUBE_IP/)
+
+  if [ "$STATUS" = "200" ]; then
+    echo "[$TIMESTAMP] Request $i: 🟢 SUCCESS (200 OK)"
+    SUCCESS=$((SUCCESS+1))
+
+  elif [ "$STATUS" = "503" ] || [ "$STATUS" = "429" ]; then
+    echo "[$TIMESTAMP] Request $i: 🔴 RATE LIMITED ($STATUS)"
+    BLOCKED=$((BLOCKED+1))
+
   else
-    echo "Request $i: 🟡 HTTP $STATUS"
+    echo "[$TIMESTAMP] Request $i: 🟡 OTHER RESPONSE ($STATUS)"
+    OTHER=$((OTHER+1))
+  fi
+
+  # simulate real traffic pattern
+  if [ "$DELAY_BETWEEN_REQUESTS" -gt 0 ]; then
+    sleep $DELAY_BETWEEN_REQUESTS
   fi
 done
 
-echo "------------------------------------------------------"
-echo "Load test complete!"
+echo "======================================================"
+echo "📊 FINAL REPORT"
+echo "🟢 Success  : $SUCCESS"
+echo "🔴 Blocked  : $BLOCKED"
+echo "🟡 Other    : $OTHER"
+echo "======================================================"
+
+echo "🏁 Load test complete!"
