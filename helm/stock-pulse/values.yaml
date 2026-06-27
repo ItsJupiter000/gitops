@@ -37,8 +37,11 @@ ingress:
   className: "nginx"
   annotations:
     # Rate limit: Max 2 requests per second per IP
-    nginx.ingress.kubernetes.io/limit-rps: "2"
-    nginx.ingress.kubernetes.io/limit-burst-multiplier: "1"
+    # nginx.ingress.kubernetes.io/limit-rps: "2"
+    # nginx.ingress.kubernetes.io/limit-burst-multiplier: "1"
+    
+    nginx.ingress.kubernetes.io/limit-rpm: "20"
+
   hosts:
     - host: stock-pulse.local
       paths:
