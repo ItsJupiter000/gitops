@@ -4,7 +4,7 @@ image:
   repository: jupiter000/stock-pulse
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "sha-b731e43"
+  tag: "sha-02ae8ba"
 
 imagePullSecrets: []
 nameOverride: ""
