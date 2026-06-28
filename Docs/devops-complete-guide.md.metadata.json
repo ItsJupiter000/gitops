@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary":  "Complete reference documentation of the StockPulse DevOps learning session covering Docker, Kubernetes, Helm, ArgoCD, Argo Rollouts, Load Balancing, Rate Limiting, and GitOps — including all commands, concepts, files, and lessons learned.",
+  "updatedAt":  "2026-06-27T12:50:35.438286475Z"
+}
