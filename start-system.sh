@@ -19,6 +19,8 @@ echo "========================================================"
 echo "🔹 ArgoCD Dashboard:  https://localhost:8080 (admin / password)"
 echo "🔹 StockPulse Live:   http://localhost:3000"
 echo "🔹 StockPulse Test:   http://localhost:3001"
+echo "🔹 Grafana UI:        http://localhost:3002 (admin / admin)"
+echo "🔹 Prometheus UI:     http://localhost:9090"
 echo "========================================================"
 echo "(Press Ctrl+C to stop all port forwards)"
 
@@ -26,6 +28,9 @@ echo "(Press Ctrl+C to stop all port forwards)"
 kubectl port-forward svc/argocd-server -n argocd 8080:443 > /dev/null 2>&1 &
 kubectl port-forward svc/stock-pulse-active 3000:3000 > /dev/null 2>&1 &
 kubectl port-forward svc/stock-pulse-preview 3001:3000 > /dev/null 2>&1 &
+# Optional: sleep for a few seconds to let monitoring pods start before port forwarding
+kubectl port-forward svc/monitoring-stack-grafana -n monitoring 3002:80 > /dev/null 2>&1 &
+kubectl port-forward svc/monitoring-stack-kube-prom-prometheus -n monitoring 9090:9090 > /dev/null 2>&1 &
 
 # Wait forever until the user presses Ctrl+C
 wait
