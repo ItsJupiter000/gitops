@@ -10,7 +10,6 @@ spec:
     repoURL: https://prometheus-community.github.io/helm-charts
     targetRevision: 61.3.0 # Stable chart version
     helm:
-      skipCrds: true # Skip rendering CRDs (we installed them manually via ServerSideApply)
       values: |
         # Configure Grafana
         grafana:
@@ -28,6 +27,6 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true # Tell ArgoCD to create the 'monitoring' namespace if it doesn't exist
-      - ServerSideApply=true # Bypass K8s CRD annotation size limits (262144 bytes)
-      - Replace=true         # Fallback to replace for CRD creation conflicts
+      - CreateNamespace=true
+      - ServerSideApply=true  # Fixes: CRD annotations too long (>262KB)
+      - Replace=true          # Fixes: CRDs must be installed before resources
