@@ -24,13 +24,18 @@ echo "🔹 Prometheus UI:     http://localhost:9090"
 echo "========================================================"
 echo "(Press Ctrl+C to stop all port forwards)"
 
-# Run port forwards in the background
+# Run core port forwards in the background
 kubectl port-forward svc/argocd-server -n argocd 8080:443 > /dev/null 2>&1 &
 kubectl port-forward svc/stock-pulse-active 3000:3000 > /dev/null 2>&1 &
 kubectl port-forward svc/stock-pulse-preview 3001:3000 > /dev/null 2>&1 &
-# Optional: sleep for a few seconds to let monitoring pods start before port forwarding
-kubectl port-forward svc/monitoring-stack-grafana -n monitoring 3002:80 > /dev/null 2>&1 &
-kubectl port-forward svc/monitoring-stack-kube-prom-prometheus -n monitoring 9090:9090 > /dev/null 2>&1 &
+
+# Wait for monitoring stack pods before forwarding (they take longer to start)
+echo "⏳ Waiting for Grafana to be ready..."
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=grafana -n monitoring --timeout=120s 2>/dev/null && \
+  kubectl port-forward svc/monitoring-stack-grafana -n monitoring 3002:80 > /dev/null 2>&1 & \
+  kubectl port-forward svc/monitoring-stack-kube-prom-prometheus -n monitoring 9090:9090 > /dev/null 2>&1 & \
+  echo "✅ Grafana: http://localhost:3002  Prometheus: http://localhost:9090" || \
+  echo "⚠️  Monitoring stack not ready yet. Run manually: kubectl port-forward svc/monitoring-stack-grafana -n monitoring 3002:80"
 
 # Wait forever until the user presses Ctrl+C
 wait
