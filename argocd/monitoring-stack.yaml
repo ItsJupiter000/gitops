@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: kube-prometheus-stack
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: 61.3.0 # Stable chart version
+    helm:
+      values: |
+        # Configure Grafana
+        grafana:
+          adminPassword: "admin" # Set default password (change in production!)
+          persistence:
+            enabled: false # Keep simple for local Minikube
+        # Disable Alertmanager for local environment to save RAM
+        alertmanager:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true # Tell ArgoCD to create the 'monitoring' namespace if it doesn't exist
