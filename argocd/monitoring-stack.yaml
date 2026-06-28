@@ -29,3 +29,4 @@ spec:
     syncOptions:
       - CreateNamespace=true # Tell ArgoCD to create the 'monitoring' namespace if it doesn't exist
       - ServerSideApply=true # Bypass K8s CRD annotation size limits (262144 bytes)
+      - Replace=true         # Fallback to replace for CRD creation conflicts
