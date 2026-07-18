@@ -33,34 +33,37 @@ if [ -z "$VAULT_POD" ]; then
 fi
 echo "✅ Found Vault pod: $VAULT_POD"
 
+echo "⏳ Waiting for Vault pod to be ready..."
+kubectl wait --for=condition=ready pod/$VAULT_POD -n vault --timeout=60s
+
 echo ""
 echo "🔑 Step 1: Enable Kubernetes Auth Method..."
-kubectl exec -n vault $VAULT_POD -- vault auth enable kubernetes 2>/dev/null \
+kubectl exec -n vault $VAULT_POD -c vault -- vault auth enable kubernetes 2>/dev/null \
   || echo "   ↳ Already enabled, skipping."
 
 echo ""
 echo "🔗 Step 2: Configure Vault to trust this Kubernetes cluster..."
-kubectl exec -n vault $VAULT_POD -- sh -c '
+kubectl exec -n vault $VAULT_POD -c vault -- sh -c '
 vault write auth/kubernetes/config \
   kubernetes_host="https://$KUBERNETES_PORT_443_TCP_ADDR:443"
 '
 
 echo ""
 echo "📦 Step 3: Enable the KV secrets engine..."
-kubectl exec -n vault $VAULT_POD -- vault secrets enable -path=secret kv-v2 2>/dev/null \
+kubectl exec -n vault $VAULT_POD -c vault -- vault secrets enable -path=secret kv-v2 2>/dev/null \
   || echo "   ↳ Already enabled, skipping."
 
 echo ""
 echo "🔒 Step 4: Storing secrets from your environment into Vault..."
 # Credentials come from shell env vars — never hardcoded in this file
-kubectl exec -n vault $VAULT_POD -- vault kv put secret/stock-pulse \
+kubectl exec -n vault $VAULT_POD -c vault -- vault kv put secret/stock-pulse \
   DOCKERHUB_USERNAME="jupiter000" \
   DOCKERHUB_TOKEN="$DOCKERHUB_TOKEN" \
   NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
 
 echo ""
 echo "📜 Step 5: Create access policy..."
-kubectl exec -n vault $VAULT_POD -- vault policy write stock-pulse-policy - <<EOF
+kubectl exec -n vault $VAULT_POD -c vault -- vault policy write stock-pulse-policy - <<EOF
 path "secret/data/stock-pulse" {
   capabilities = ["read"]
 }
@@ -68,7 +71,7 @@ EOF
 
 echo ""
 echo "🎫 Step 6: Bind policy to Kubernetes ServiceAccount..."
-kubectl exec -n vault $VAULT_POD -- vault write auth/kubernetes/role/stock-pulse \
+kubectl exec -n vault $VAULT_POD -c vault -- vault write auth/kubernetes/role/stock-pulse \
   bound_service_account_names=stock-pulse \
   bound_service_account_namespaces=default \
   policies=stock-pulse-policy \

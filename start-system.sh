@@ -21,6 +21,7 @@ echo "🔹 StockPulse Live:   http://localhost:3000"
 echo "🔹 StockPulse Test:   http://localhost:3001"
 echo "🔹 Grafana UI:        http://localhost:3002 (admin / admin)"
 echo "🔹 Prometheus UI:     http://localhost:9090"
+echo "🔹 Vault UI:          http://localhost:8200  (Token: root)"
 echo "========================================================"
 echo "(Press Ctrl+C to stop all port forwards)"
 
@@ -35,7 +36,14 @@ kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=grafana -n moni
   kubectl port-forward svc/monitoring-stack-grafana -n monitoring 3002:80 > /dev/null 2>&1 & \
   kubectl port-forward svc/monitoring-stack-kube-prom-prometheus -n monitoring 9090:9090 > /dev/null 2>&1 & \
   echo "✅ Grafana: http://localhost:3002  Prometheus: http://localhost:9090" || \
-  echo "⚠️  Monitoring stack not ready yet. Run manually: kubectl port-forward svc/monitoring-stack-grafana -n monitoring 3002:80"
+  echo "⚠️  Monitoring stack not ready yet."
+
+# Vault UI — forward if Vault pod is running
+echo "⏳ Checking for Vault..."
+kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=vault -n vault --timeout=30s 2>/dev/null && \
+  kubectl port-forward svc/vault -n vault 8200:8200 > /dev/null 2>&1 & \
+  echo "✅ Vault UI: http://localhost:8200  (Token: root)" || \
+  echo "⚠️  Vault not ready yet. Run manually: kubectl port-forward svc/vault -n vault 8200:8200"
 
 # Wait forever until the user presses Ctrl+C
 wait
