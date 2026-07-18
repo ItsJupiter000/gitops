@@ -27,6 +27,7 @@ spec:
       labels:
         {{- include "stock-pulse.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ default (include "stock-pulse.fullname" .) .Values.serviceAccount.name }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
