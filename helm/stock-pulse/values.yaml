@@ -15,7 +15,23 @@ serviceAccount:
   annotations: {}
   name: ""
 
-podAnnotations: {}
+podAnnotations:
+  # --- Vault Agent Sidecar Injector ---
+  # Tells Vault to automatically inject a sidecar into this pod
+  vault.hashicorp.com/agent-inject: "true"
+  # Which Vault role to authenticate as (defined in vault-setup.sh)
+  vault.hashicorp.com/role: "stock-pulse"
+  # Which secret to fetch from Vault
+  vault.hashicorp.com/agent-inject-secret-config: "secret/data/stock-pulse"
+  # How to format the secret as a file inside the pod
+  vault.hashicorp.com/agent-inject-template-config: |
+    {{- with secret "secret/data/stock-pulse" -}}
+    export DOCKERHUB_USERNAME="{{ .Data.data.DOCKERHUB_USERNAME }}"
+    export DOCKERHUB_TOKEN="{{ .Data.data.DOCKERHUB_TOKEN }}"
+    export NEXTAUTH_SECRET="{{ .Data.data.NEXTAUTH_SECRET }}"
+    {{- end }}
+  # The secret will appear inside the pod at: /vault/secrets/config
+
 
 podSecurityContext: {}
   # fsGroup: 2000
