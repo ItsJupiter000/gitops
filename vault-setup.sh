@@ -63,7 +63,7 @@ kubectl exec -n vault $VAULT_POD -c vault -- vault kv put secret/stock-pulse \
 
 echo ""
 echo "📜 Step 5: Create access policy..."
-kubectl exec -n vault $VAULT_POD -c vault -- vault policy write stock-pulse-policy - <<EOF
+kubectl exec -n vault $VAULT_POD -c vault -i -- vault policy write stock-pulse-policy - <<EOF
 path "secret/data/stock-pulse" {
   capabilities = ["read"]
 }
